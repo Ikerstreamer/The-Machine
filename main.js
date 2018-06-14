@@ -3,6 +3,7 @@ let player = {
     playTime: 0,
     heat: 30,
     temp: 10,
+    hp: 100,
     curAction:false,
     fuel:{
         max: 10,
@@ -134,8 +135,10 @@ function updateVisuals() {
     document.getElementById("fuelDiv").childNodes[3].childNodes[1].style.width = ((player.fuel.amnt / player.fuel.max) * 100) + "%";
     let temp = ["Foliage: ", "Scrap Wood: ", "Logs: ", "Charcoal: ", "Coal: ", "Coal Coke: ", "Oil: ", "Fuel: "];
     for (let i = 0; i < Object.keys(player.items).length; i++) {
-        if (ObjById(player.items,i).show) document.getElementById("itemTable").rows[i].cells[0].innerHTML = temp[i] + ObjById(player.items,i).amnt;
-        else document.getElementById("itemTable").rows[i].cells[0].innerHTML = "";
+        if (ObjById(player.items, i).show) {
+            document.getElementById("itemTable").rows[i].cells[0].innerHTML = temp[i] + ObjById(player.items, i).amnt;
+            document.getElementById("itemTable").rows[i].classList.remove('hidden');
+        }
     }
     temp = ["Forrage: ", "Chop Trees: "];
     for (let i = 0; i < Object.keys(player.actions).length; i++) {
@@ -192,7 +195,13 @@ function eventTrigger(){
             startFade("infoDiv", 0, 1000);
         }, 1000)
     }
-
+    if (player.hp <= 0) {
+        startFade("infoDiv", 1, 1000);
+        setTimeout(function () {
+            document.getElementById("infoDiv").innerHTML = "You have died... <br> You survived for " +player.playTime/1000 +"s...";
+            startFade("infoDiv", 0, 1000);
+        }, 1000)
+    }
 }
 
 function heatTick(dif) {
@@ -201,6 +210,8 @@ function heatTick(dif) {
     let change = newheat - player.heat;
     change /= 10 * dif;
     player.heat += change;
+    if (player.heat < 10 ) player.hp -= Math.pow(10 - player.heat, 2) / 100000 * dif;
+    if (player.heat > 20 && player.hp < 100) player.hp += Math.pow(-10 + player.heat, 2) / 100000 * dif;
     player.fuel.time = player.fuel.time.map(function (value) { value -= dif; if (value < 0) return 0; else return value });
     player.fuel.heat = player.fuel.heat.map(function (value, id) {if (player.fuel.time[id] === 0) return value - dif / 1000;else return value;});
     for (let i = player.fuel.amnt - 1; i >= 0; i--) {
