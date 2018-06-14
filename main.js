@@ -118,9 +118,10 @@ function startFade(object, type, time) {
 
 function loop() {
     let dif = Date.now() - player.lastUpdate;
+    player.lastUpdate = Date.now();
+    if (player.dead) return;
     heatTick(dif);
     actionTick(dif);
-    player.lastUpdate = Date.now();
     if (Date.now() % 250 < dif){
         //Happens every 1/4 of a second
         updateVisuals();
