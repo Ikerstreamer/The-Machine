@@ -1,0 +1,48 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <script type="text/javascript" src="main.js"></script>
+    <link rel="stylesheet" type="text/css" href="Interface.css" />
+    <meta charset="utf-8" />
+    <title>Machine</title>
+</head>
+<body onload="init()">
+    <div id="infoDiv" class="guiBox">
+        <b>You awake in the cold hard snow, the machine hums dormant...<br> Its heat the only thing that keeps you from death...</b>
+        </div>
+    <div class="left">
+        <div id="tempDiv" class="guiBox">
+            <h2>Temperature: 30&deg;C</h2>
+            <div style="background-color:red; width:80%; height:50px; margin:5px 10% 10px 10%"></div>
+        </div>
+        <br />
+        <div id="fuelDiv" class="guiBox">
+            <h2>Fuel: 10%</h2>
+            <div class="progress">
+                <div class="bar" style="background-color:yellow; margin:5px 10% 10px 10%"></div>
+            </div>
+        </div>
+        <br />
+        <div id="itemDiv" class="guiBox">
+            <table id="itemTable" align="center" cellspacing="5">
+                <tr><td style="width:75%">Foliage:</td><td style="width:25%"><button onclick="burn(0)" style="width:100%;height:100%;">Burn</button></td></tr>
+                <tr class="hidden"><td style="width:75%"></td><td style="width:25%"><button onclick="burn(1)" style="width:100%;height:100%;">Burn</button></td></tr>
+                <tr class="hidden"><td style="width:75%"></td><td style="width:25%"><button onclick="burn(2)" style="width:100%;height:100%;">Burn</button></td></tr>
+                <tr class="hidden"><td style="width:75%"></td><td style="width:25%"><button onclick="burn(3)" style="width:100%;height:100%;">Burn</button></td></tr>
+                <tr class="hidden"><td style="width:75%"></td><td style="width:25%"><button onclick="burn(4)" style="width:100%;height:100%;">Burn</button></td></tr>
+                <tr class="hidden"><td style="width:75%"></td><td style="width:25%"><button onclick="burn(5)" style="width:100%;height:100%;">Burn</button></td></tr>
+                <tr class="hidden"><td style="width:75%"></td><td style="width:25%"><button onclick="burn(6)" style="width:100%;height:100%;">Burn</button></td></tr>
+                <tr class="hidden"><td style="width:75%"></td><td style="width:25%"><button onclick="burn(7)" style="width:100%;height:100%;">Burn</button></td></tr>
+            </table>
+        </div>
+        <br />
+        <div id="actionDiv" class="guiBox">
+            <table id="actionTable" align="center" cellspacing="5">
+                <tr><td style="width:75%">Forage:</td><td style="width:25%"><button onclick="act(0)" style="width:100%;height:100%;">Start</button></td></tr>
+                <tr class="hidden"><td style="width:75%">Chop Wood:</td><td style="width:25%"><button onclick="act(1)" style="width:100%;height:100%;">Start</button></td></tr>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

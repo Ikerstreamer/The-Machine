@@ -1,0 +1,70 @@
+﻿body {
+    font-family: Courier New, Courier, monospace;
+    font-weight: bold;
+    opacity: 0;
+}
+
+.progress {
+    background: #D3D3D3;
+    width: 80%;
+}
+
+    .progress .bar {
+        width: 30%;
+        height: 50px;
+    }
+
+.guiBox {
+    margin: 5px;
+    border: ridge 10px;
+    border-color: dimgrey;
+    background-color: lightgray;
+}
+
+.hidden {
+    visibility: hidden !important;
+}
+
+#tempDiv {
+    text-align: center;
+    opacity: 0;
+    font-size: 1.15vw;
+}
+
+#infoDiv {
+    width: 35%;
+    float: right;
+    font-size:1.5vw;
+}
+
+#fuelDiv {
+    font-size: 1.15vw;
+    text-align: center;
+    opacity: 0;
+}
+.left {
+    width: 25%;
+    float: left;
+}
+
+#itemDiv {
+    text-align: center;
+    opacity: 0;
+    font-size: 1.45vw;
+}
+
+#actionDiv {
+    text-align: center;
+    opacity: 0;
+    font-size: 1.45vw;
+}
+
+.hidden{
+    display:none !important;
+}
+
+button {
+    font-family: Courier New, Courier, monospace;
+    font-weight: bold;
+    font-size: 1.35vw;
+}
