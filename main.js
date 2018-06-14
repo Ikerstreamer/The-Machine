@@ -4,7 +4,8 @@ let player = {
     heat: 30,
     temp: 10,
     hp: 100,
-    curAction:false,
+    dead: false,
+    curAction: false,
     fuel:{
         max: 10,
         amnt: 3,
@@ -197,8 +198,9 @@ function eventTrigger(){
     }
     if (player.hp <= 0) {
         startFade("infoDiv", 1, 1000);
+        player.dead = true;
         setTimeout(function () {
-            document.getElementById("infoDiv").innerHTML = "You have died... <br> You survived for " +player.playTime/1000 +"s...";
+            document.getElementById("infoDiv").innerHTML = "You have died... <br> You survived for " +player.playTime/1000 +"seconds...";
             startFade("infoDiv", 0, 1000);
         }, 1000)
     }
