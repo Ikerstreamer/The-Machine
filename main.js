@@ -1,6 +1,7 @@
 let player = {
     lastUpdate: 0,
-    playTime: 0,
+    totalTime: 0,
+    runTime: 0,
     heat: 30,
     temp: 10,
     hp: 100,
@@ -57,6 +58,7 @@ let player = {
         rewards: { foliage: { max: 7, chance: 90, name: 'foliage', }, scrapWood: { max: 1, chance: 10, name: 'scrapWood', } },
         chance: 50,
         items: 5,
+        count: 0,
         dist: 1,
         time: { total: 7000, left: 7000 },
         active: false,
@@ -65,12 +67,15 @@ let player = {
         rewards: { foilage: { max: 10, chance: 40, name: 'foilage', }, scrapWood: { max: 10, chance: 30, name: 'scrapWood', }, logs: { max: 5, chance: 30, name: 'logs', } },
         chance: 30,
         items: 20,
+        count: 0,
         dist: 5,
         time: 25000,
         show: false,
     } },
     events: {nofuel:false,coldsnap:0},
 }
+
+let start = Object.assign(player);
 
 function init() {
     startFade("body", 0);
@@ -97,6 +102,21 @@ function SumOf(arr) {
     else return 0;
 }
 
+function classFade(className, type, time) {
+    if (time == undefined) time = 5000;
+    let amnt = type;
+    let fade = setInterval((type == 1 ? fadeOut : fadeIn), time/100);
+    function fadeIn() {
+        amnt += 0.01;
+        for (let i = 0; i < document.getElementsByClassName(className).length; i++) document.getElementsByClassName(className)[i].style.opacity = amnt;
+        if (amnt >= 1) clearInterval(fade);
+    }
+    function fadeOut() {
+        amnt -= 0.01;
+        for (let i = 0; i < document.getElementsByClassName(className).length; i++) document.getElementsByClassName(className)[i].style.opacity = amnt;
+        if (amnt <= 0) clearInterval(fade);
+    }
+}
 
 function startFade(object, type, time) {
     if (time == undefined) time = 5000;
@@ -127,7 +147,7 @@ function loop() {
         updateVisuals();
         eventTrigger();
     }
-    player.playTime += dif;
+    player.runTime += dif;
 }
 
 function updateVisuals() {
@@ -177,6 +197,7 @@ function act(num){
 }
 
 function eventTrigger(){
+    //new content
     if (player.items.foliage.amnt === 0 && !player.events.nofuel) {
         player.events.nofuel = true;
         startFade("infoDiv", 1, 1000);
@@ -185,26 +206,79 @@ function eventTrigger(){
             startFade('actionDiv', 0, 1000);
             document.getElementById("infoDiv").innerHTML = "You can forage near the machine to find some more foliage...";
             startFade("infoDiv", 0, 1000);
-        },1000)
+        },1100)
         return;
     }
-    if (player.playTime >= 150000 * Math.pow(player.events.coldsnap + 1, 2)) {
+
+    if(player.actions.forage.count >= 10 && player.events.rareItems && !player.actions.chopTrees.show){
+        startFade("infoDiv", 1, 1000);
+        player.actions.chopTrees.show = true;
+        setTimeout(function () {
+            document.getElementById("infoDiv").innerHTML = "You found an axe laying around back, it was hidden in the snow... <br> Now you can put this to good use and get some actual firewood, the trees are far out; hope you don't freeze on the way there...";
+            startFade("infoDiv", 0, 1000);
+        }, 1100)
+        return;
+    }
+
+    //more cold
+    if (player.runTime >= 150000 * Math.pow(player.events.coldsnap + 1, 2)) {
         player.events.coldsnap++;
         player.temp -= 5 * player.events.coldsnap;
         startFade("infoDiv", 1, 1000);
         setTimeout(function () {
             document.getElementById("infoDiv").innerHTML = "You feel the air around you getting colder as another blizzard sweeps in...<br>The temperature just dropped by " + 5 * player.events.coldsnap + "&deg;C";
             startFade("infoDiv", 0, 1000);
-        }, 1000)
+        }, 1100)
+        return;
     }
+
+    //death trigger
     if (player.hp <= 0) {
         startFade("infoDiv", 1, 1000);
         player.dead = true;
         setTimeout(function () {
-            document.getElementById("infoDiv").innerHTML = "You have died... <br> You survived for " +player.playTime/1000 +"seconds...";
+            document.getElementById("infoDiv").innerHTML = "You have died... <br> You survived for " +player.runTime/1000 +" seconds...";
             startFade("infoDiv", 0, 1000);
-        }, 1000)
+            setTimeout(function () {
+                startFade("infoDiv", 1, 1000);
+                setTimeout(function () {
+                    document.getElementById("infoDiv").innerHTML = "Now it is time to rebuild... <br> The machine will not be forgotten..";
+                    startFade("infoDiv", 0, 1000);
+                    startFade("gameAlive", 1, 6000);
+                    startDeath();
+                }, 2100)
+            },1100)
+        }, 1100)
+        return;
     }
+}
+
+function startDeath() {
+    startFade("gameDead",0,"8000")
+    let time = player.runTime;
+    let unlocks = [
+        { name: "prepWork", desc: "Being ready for the cold is important, having more emergency fuel in the machine will prove useful...", title: "Preparation", reqs: function () { if (time >= 600000 && player.events.nofuel) return true; }, mods: function () { player.items.foliage += 5; } },
+        { name: "foragingSkill", desc: "Expert level foraging skills and equipment might lead to chances to find rare lost items, that may prove useful in survival...", title: "Foraging Expertise", reqs: function () { if (time >= 700000 && player.actions.forage.count >= 20) return true; }, mods: function () { player.events.rareItems = true; } },
+        { name: "workSkills", desc: "After doing task over and over again you get the sense that you can do them faster than ever before...", title: "Work Ethic", reqs: function () { if (time >= 900000 && player.actions.forage.count + player.actions.chopTrees.count >= 40) return true; }, mods: function () { player.actions.forage.time.total -= 1; player.actions.chopTrees.time.total -= 1 } }
+    ]
+    let earned = [];
+    for (let i = 0; i < unlocks.length; i++)if (unlocks[i].reqs()) earned.push(unlocks[i]);
+    let elem = document.getElementById('unlockDisp');
+    let timer = 0;
+    let count = 0;
+    let interval = setInterval(function () {
+        timer += 100;
+        if (count === earned.length) clearInterval(interval);
+        if (timer >= count * 10000) {
+            count++;
+            elem.getElementsByClassName('title')[0] = earned[i].title;
+            elem.getElementsByClassName('desc')[0] = earned[i].desc;
+            startFade('unlockDisp', 0, 1000)
+            setTimeout(function () {
+                startFade('unlockDisp', 1, 1000)
+            }, 9000)
+        }
+    },100)
 }
 
 function heatTick(dif) {
@@ -213,8 +287,8 @@ function heatTick(dif) {
     let change = newheat - player.heat;
     change /= 10 * dif;
     player.heat += change;
-    if (player.heat < 10 ) player.hp -= Math.pow(10 - player.heat, 2) / 100000 * dif;
-    if (player.heat > 20 && player.hp < 100) player.hp += Math.pow(-10 + player.heat, 2) / 100000 * dif;
+    if (player.heat < 10 ) player.hp -= Math.pow(10 - player.heat, 2) / 50000 * dif;
+    if (player.heat > 20 && player.hp < 100) player.hp += Math.pow(-10 + player.heat, 2) / 50000 * dif;
     player.fuel.time = player.fuel.time.map(function (value) { value -= dif; if (value < 0) return 0; else return value });
     player.fuel.heat = player.fuel.heat.map(function (value, id) {if (player.fuel.time[id] === 0) return value - dif / 1000;else return value;});
     for (let i = player.fuel.amnt - 1; i >= 0; i--) {
@@ -231,6 +305,7 @@ function actionTick(dif) {
         let action = player.actions[player.curAction];
         action.time.left -= dif;
         if (action.time.left <= 0) {
+            action.count++;
             let itemNames = Object.keys(action.rewards);
             let items = action.rewards;
             let itemsFound = [];
