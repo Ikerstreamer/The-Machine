@@ -75,7 +75,7 @@ let player = {
     events: {nofuel:false,coldsnap:0},
 }
 
-let start = Object.assign(player);
+let start = JSON.parse(JSON.stringify(player));
 
 function init() {
     startFade("body", 0);
@@ -254,12 +254,12 @@ function eventTrigger(){
 }
 
 function startDeath() {
-    startFade("gameDead",0,"8000")
+    startFade("gameDead",0,8000)
     let time = player.runTime;
     let unlocks = [
-        { name: "prepWork", desc: "Being ready for the cold is important, having more emergency fuel in the machine will prove useful...", title: "Preparation", reqs: function () { if (time >= 600000 && player.events.nofuel) return true; }, mods: function () { player.items.foliage += 5; } },
+        { name: "prepWork", desc: "Being ready for the cold is important, having more emergency fuel in the machine will prove useful...", title: "Preparation", reqs: function () { if (time >= 600000 && player.events.nofuel) return true; }, mods: function () { player.items.foliage.amnt += 5; } },
         { name: "foragingSkill", desc: "Expert level foraging skills and equipment might lead to chances to find rare lost items, that may prove useful in survival...", title: "Foraging Expertise", reqs: function () { if (time >= 700000 && player.actions.forage.count >= 20) return true; }, mods: function () { player.events.rareItems = true; } },
-        { name: "workSkills", desc: "After doing task over and over again you get the sense that you can do them faster than ever before...", title: "Work Ethic", reqs: function () { if (time >= 900000 && player.actions.forage.count + player.actions.chopTrees.count >= 40) return true; }, mods: function () { player.actions.forage.time.total -= 1; player.actions.chopTrees.time.total -= 1 } }
+        { name: "workSkills", desc: "After doing task over and over again you get the sense that you can do them faster than ever before...", title: "Work Ethic", reqs: function () { if (time >= 900000 && player.actions.forage.count + player.actions.chopTrees.count >= 40) return true; }, mods: function () { player.actions.forage.time.total -= 1; player.actions.chopTrees.time.total -= 1; player.actions.forage.time.left -= 1; player.actions.chopTrees.time.left -= 1 } }
     ]
     let earned = [];
     for (let i = 0; i < unlocks.length; i++)if (unlocks[i].reqs()) earned.push(unlocks[i]);
@@ -268,17 +268,52 @@ function startDeath() {
     let count = 0;
     let interval = setInterval(function () {
         timer += 100;
-        if (count === earned.length) clearInterval(interval);
-        if (timer >= count * 10000) {
+        if (timer >= (earned.length+1) * 10000) {
+            clearInterval(interval);
+            startFade('learnTitle',1,1000)
+            startFade('resetTitle', 0, 1000)
+            startFade('resetBtn', 0, 1000)
+            time += player.totalTime;
+            player = JSON.parse(JSON.stringify(start));
+            player.totalTime = time;
+            player.dead = true;
+            for (let i = 0; i < earned.length; i++) earned[i].mods();
+            return;
+        }
+        if (timer >= (count + 1) * 10000) {
             count++;
-            elem.getElementsByClassName('title')[0] = earned[i].title;
-            elem.getElementsByClassName('desc')[0] = earned[i].desc;
+            elem.getElementsByClassName('title')[0].innerHTML = earned[count-1].title;
+            elem.getElementsByClassName('desc')[0].innerHTML = earned[count-1].desc;
             startFade('unlockDisp', 0, 1000)
             setTimeout(function () {
                 startFade('unlockDisp', 1, 1000)
+                if (count === 1) startFade('unlockList', 0, 1000);
+                let elem2 = document.getElementById('unlockTable').insertRow(0);
+                elem2.insertCell(0).innerHTML = earned[count-1].title;
             }, 9000)
         }
     },100)
+}
+
+function awaken() {
+    classFade("guiBox", 1,10);
+    setTimeout(startFade,11,'infoDiv',0,10)
+    document.getElementById("infoDiv").innerHTML = "<b>You awake in the cold hard snow, the machine hums dormant...<br> Its heat the only thing that keeps you from death...</b>";
+    startFade("gameDead", 1, 3000);
+    setTimeout(function () {
+        player.dead = false;
+        startFade("gameAlive", 0, 3000);
+        setTimeout(startFade, 1000, "tempDiv", 0);
+        setTimeout(function () {
+            startFade("infoDiv", 1, 1000);
+            setTimeout(function () {
+                document.getElementById("infoDiv").innerHTML = "The machine will soon run out of fuel you must stop this...";
+                startFade("infoDiv", 0)
+                startFade("fuelDiv", 0)
+                startFade("itemDiv", 0)
+            }, 1000)
+        }, 10000)
+    },3100)
 }
 
 function heatTick(dif) {

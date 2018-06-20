@@ -30,6 +30,38 @@
     font-size: 2vw;
 }
 
+#resetTitle {
+    font-size: 2vw;
+    opacity:0;
+}
+
+#resetBtn {
+    font-size: 2vw;
+    opacity: 0;
+    border:double 2px gold;
+    background-color:dodgerblue;
+    width:40%;
+    height:40px;
+    user-select:element;
+    cursor:pointer;
+    position:absolute;
+    top:60%;
+    left:30%;
+    text-align:center;
+    vertical-align:central;
+}
+
+#unlockList {
+    text-align: center;
+    opacity: 0;
+    font-size: 1.45vw;
+    width:20%;
+    position:absolute;
+    right:0;
+    top:10%;
+    font-size:2vw;
+}
+
 #unlockDisp {
     opacity:0;
     position: absolute;
@@ -94,4 +126,5 @@ button {
     font-family: Courier New, Courier, monospace;
     font-weight: bold;
     font-size: 1.35vw;
+    cursor: pointer;
 }
