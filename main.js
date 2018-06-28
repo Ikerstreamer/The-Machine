@@ -69,7 +69,7 @@ let player = {
         items: 20,
         count: 0,
         dist: 5,
-        time: 25000,
+        time: { total: 25000, left: 25000 },
         show: false,
     } },
     events: {nofuel:false,coldsnap:0},
