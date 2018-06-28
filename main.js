@@ -91,6 +91,7 @@ function init() {
     }, 10000)
     player.lastUpdate = Date.now();
     setInterval(loop, 50);
+    requestAnimationFrame(updateVisuals);
 }
 
 function ObjById(obj, id){
@@ -105,7 +106,8 @@ function SumOf(arr) {
 function classFade(className, type, time) {
     if (time == undefined) time = 5000;
     let amnt = type;
-    let fade = setInterval((type == 1 ? fadeOut : fadeIn), time/100);
+    let fade = setInterval((type == 1 ? fadeOut : fadeIn), time / 100);
+    for (let i = 0; i < document.getElementsByClassName(className).length; i++) document.getElementsByClassName(className)[i].style.visibility = 'visible';
     function fadeIn() {
         amnt += 0.01;
         for (let i = 0; i < document.getElementsByClassName(className).length; i++) document.getElementsByClassName(className)[i].style.opacity = amnt;
@@ -114,14 +116,19 @@ function classFade(className, type, time) {
     function fadeOut() {
         amnt -= 0.01;
         for (let i = 0; i < document.getElementsByClassName(className).length; i++) document.getElementsByClassName(className)[i].style.opacity = amnt;
-        if (amnt <= 0) clearInterval(fade);
+        if (amnt <= 0) {
+            for (let i = 0; i < document.getElementsByClassName(className).length; i++) document.getElementsByClassName(className)[i].style.visibility = 'hidden';
+            clearInterval(fade);
+        }
     }
 }
 
 function startFade(object, type, time) {
     if (time == undefined) time = 5000;
     let amnt = type;
-    let fade = setInterval((type == 1 ? fadeOut : fadeIn), time/100);
+    let fade = setInterval((type == 1 ? fadeOut : fadeIn), time / 100);
+    if (object == "body") document.body.style.visibility = 'visible';
+    else document.getElementById(object).style.visibility = 'visible';
     function fadeIn() {
         amnt += 0.01;
         if (object == "body") document.body.style.opacity = amnt;
@@ -132,7 +139,11 @@ function startFade(object, type, time) {
         amnt -= 0.01;
         if (object == "body") document.body.style.opacity = amnt;
         else document.getElementById(object).style.opacity = amnt;
-        if (amnt <= 0) clearInterval(fade);
+        if (amnt <= 0) {
+            clearInterval(fade);
+            if (object == "body") document.body.style.visibility = 'hidden';
+            else document.getElementById(object).style.visibility = 'hidden';
+        }
     }
 }
 
@@ -144,7 +155,6 @@ function loop() {
     actionTick(dif);
     if (Date.now() % 250 < dif){
         //Happens every 1/4 of a second
-        updateVisuals();
         eventTrigger();
     }
     player.runTime += dif;
@@ -169,6 +179,7 @@ function updateVisuals() {
             document.getElementById("actionTable").rows[i].classList.remove('hidden');
         }
     }
+    requestAnimationFrame(updateVisuals);
 }
 
 function burn(num) {
@@ -221,7 +232,7 @@ function eventTrigger(){
     }
 
     //more cold
-    if (player.runTime >= 150000 * Math.pow(player.events.coldsnap + 1, 2)) {
+    if (player.runTime >= 100000 * Math.pow(player.events.coldsnap + 1, 2)) {
         player.events.coldsnap++;
         player.temp -= 5 * player.events.coldsnap;
         startFade("infoDiv", 1, 1000);
