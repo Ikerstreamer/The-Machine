@@ -268,15 +268,15 @@ function startDeath() {
     startFade("gameDead",0,8000)
     let time = player.runTime;
     let unlocks = [
-        { name: "prepWork", desc: "Being ready for the cold is important, having more emergency fuel in the machine will prove useful...", title: "Preparation", reqs: function () { if (time >= 600000 && player.events.nofuel) return true; }, mods: function () { player.items.foliage.amnt += 5; } },
-        { name: "foragingSkill", desc: "Expert level foraging skills and equipment might lead to chances to find rare lost items, that may prove useful in survival...", title: "Foraging Expertise", reqs: function () { if (time >= 700000 && player.actions.forage.count >= 20) return true; }, mods: function () { player.events.rareItems = true; } },
-        { name: "workSkills", desc: "After doing task over and over again you get the sense that you can do them faster than ever before...", title: "Work Ethic", reqs: function () { if (time >= 900000 && player.actions.forage.count + player.actions.chopTrees.count >= 40) return true; }, mods: function () { player.actions.forage.time.total -= 1; player.actions.chopTrees.time.total -= 1; player.actions.forage.time.left -= 1; player.actions.chopTrees.time.left -= 1 } }
+        { name: "prepWork", desc: "Being ready for the cold is important, having more emergency fuel in the machine will prove useful...", title: "Preparation", reqs: function () { if (time >= 300000 && player.events.nofuel) return true; }, mods: function () { player.items.foliage.amnt += 5; } },
+        { name: "foragingSkill", desc: "Expert level foraging skills and equipment might lead to chances to find rare lost items, that may prove useful in survival...", title: "Foraging Expertise", reqs: function () { if (time >= 450000 && player.actions.forage.count >= 20) return true; }, mods: function () { player.events.rareItems = true; } },
+        { name: "workSkills", desc: "After doing task over and over again you get the sense that you can do them faster than ever before...", title: "Work Ethic", reqs: function () { if (time >= 700000 && player.actions.forage.count + player.actions.chopTrees.count >= 40) return true; }, mods: function () { player.actions.forage.time.total -= 1; player.actions.chopTrees.time.total -= 1; player.actions.forage.time.left -= 1; player.actions.chopTrees.time.left -= 1 } }
     ]
     let earned = [];
     for (let i = 0; i < unlocks.length; i++)if (unlocks[i].reqs()) earned.push(unlocks[i]);
     let elem = document.getElementById('unlockDisp');
     let timer = 0;
-    let count = 0;
+    let count = 0;  
     let interval = setInterval(function () {
         timer += 100;
         if (timer >= (earned.length+1) * 10000) {
